@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Flask UI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="glass-card">
+        <h1>Flask API Test</h1>
+        <p>This is the HTML frontend served by Python.</p>
+        <div class="button-container">
+            <button id="testBtn">Test API Backend</button>
+            <button id="btn1" onclick="sayHello(1)">hello 1</button>
+            <button id="btn2" onclick="sayHello(2)">hello 2</button>
+            <button id="btn3" onclick="sayHello(3)">hello 3</button>
+            <button id="btnExit" onclick="exitPage()">exit</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = "Loading...";
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                resultDiv.innerText = `[${data.status.toUpperCase()}] ${data.message}`;
+            } catch (error) {
+                resultDiv.innerText = "Error connecting to the Flask backend.";
+            }
+        });
+
+        function sayHello(num) {
+            document.getElementById('result').innerText = `You clicked Hello ${num}!`;
+        }
+
+        function exitPage() {
+            document.getElementById('result').innerText = "Goodbye!";
+            setTimeout(() => {
+                window.close();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java AI Web Agent UI</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: scale(1.05);
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #BB86FC;
+        }
+        button {
+            background-color: #BB86FC;
+            color: #121212;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3700B3;
+            color: white;
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Multi-Language Agent UI</h1>
+        <p>This page is served by a Java Spring Boot Backend.</p>
+        <button onclick="fetchGreeting()">Test Backend Connection</button>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        async function fetchGreeting() {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerText = "Loading...";
+            try {
+                const res = await fetch('/api/greeting');
+                const data = await res.json();
+                responseDiv.innerText = data.message;
+            } catch (error) {
+                responseDiv.innerText = "Error connecting to backend.";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

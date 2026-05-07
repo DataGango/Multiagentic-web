@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poulomi's Hotel & Beach Resort</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <header>
+            <h1>Poulomi's Hotel</h1>
+            <p class="subtitle">Luxury Beach Resort & Spa</p>
+        </header>
+
+        <div class="modules-grid">
+            <div class="card" onclick="triggerAction('booking')">
+                <h3>Book a Room</h3>
+                <p>Reserve your ocean-view suite.</p>
+            </div>
+            <div class="card" onclick="triggerAction('checkin')">
+                <h3>Check In</h3>
+                <p>Arriving today? Check in online.</p>
+            </div>
+            <div class="card" onclick="triggerAction('checkout')">
+                <h3>Check Out</h3>
+                <p>Heading home? Express check out.</p>
+            </div>
+            <div class="card" onclick="triggerAction('payment')">
+                <h3>Payment</h3>
+                <p>Settle your resort balance safely.</p>
+            </div>
+            <div class="card" onclick="triggerAction('claim')">
+                <h3>File a Claim</h3>
+                <p>Lost something? Let us help you.</p>
+            </div>
+            <div class="card luxury">
+                <h3>Luxury Amenities</h3>
+                <ul>
+                    <li>Infinity Pool</li>
+                    <li>Private Cabanas</li>
+                    <li>Sunset Yacht Tours</li>
+                    <li>Oceanfront Spa</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="notification-bar"></div>
+    </div>
+
+    <script>
+        async function triggerAction(endpoint) {
+            const bar = document.getElementById('notification-bar');
+            bar.style.display = 'block';
+            bar.className = 'loading';
+            bar.innerText = `Processing ${endpoint}...`;
+            
+            try {
+                const response = await fetch(`/api/${endpoint}`, { method: 'POST' });
+                const data = await response.json();
+                bar.className = 'success';
+                bar.innerText = `✅ ${data.message}`;
+            } catch (error) {
+                bar.className = 'error';
+                bar.innerText = "❌ Connection failed. Please try again.";
+            }
+            
+            setTimeout(() => {
+                bar.style.display = 'none';
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

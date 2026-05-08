@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Hotel Network API</title>
+    <!-- Swagger UI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: pink; margin: 0; display: flex; height: 100vh; }
+        
+        /* Left Panel: Swagger */
+        .left-panel { width: 50%; background: white; overflow-y: auto; border-right: 2px solid #ccc; box-shadow: 5px 0 15px rgba(0,0,0,0.1); z-index: 10; }
+        
+        /* Right Panel: Our Custom Dashboard */
+        .right-panel { width: 50%; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
+        .container { width: 100%; max-width: 600px; background: pink; padding: 30px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); text-align: center; border: 2px solid #ff9db2; }
+        
+        h1 { color: #d81b60; font-size: 2.2rem; margin-bottom: 5px; }
+        p.subtitle { color: #880e4f; margin-bottom: 25px; font-weight: 500; }
+        
+        .hotel-select { margin-bottom: 25px; padding: 12px; font-size: 16px; width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        
+        button { color: white; border: none; padding: 16px; font-size: 16px; border-radius: 8px; cursor: pointer; transition: transform 0.2s, filter 0.2s; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        
+        .btn-red { background-color: #e74c3c; }
+        .btn-yellow { background-color: #f1c40f; color: #555; }
+        .btn-blue { background-color: #3498db; }
+        .btn-green { background-color: #2ecc71; }
+        .btn-orange { background-color: #e67e22; }
+        
+        #response-box { margin-top: 35px; padding: 25px; border-radius: 8px; background-color: white; min-height: 50px; font-size: 16px; font-weight: bold; color: #333; border: 2px dashed #ff9db2; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+    <!-- Left Panel for Swagger UI -->
+    <div class="left-panel" id="swagger-ui"></div>
+
+    <!-- Right Panel for Dashboard -->
+    <div class="right-panel">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Django Hotel API</h1>
+                <div>
+                    <a href="/tests/" style="background-color: #34495e; color: white; padding: 8px 15px; font-size: 14px; text-decoration: none; border-radius: 4px; margin-right: 10px;">View Test Results 📊</a>
+                    <button style="background-color: #95a5a6; padding: 8px 15px; font-size: 14px; box-shadow: none;" onclick="alert('You have been logged out securely.');">Logout 🔒</button>
+                </div>
+            </div>
+            <p class="subtitle">Select a target hotel and execute a POST request</p>
+            
+            <!-- Hotel Logos Grid -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 25px; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Hilton_Hotels_%26_Resorts_logo.svg" height="30" alt="Hilton">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Marriott_International_logo.svg/512px-Marriott_International_logo.svg.png" height="30" alt="Marriott">
+                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/The_Ritz-Carlton_logo.svg/512px-The_Ritz-Carlton_logo.svg.png" height="30" alt="Ritz">
+            </div>
+            
+            <select id="hotelDropdown" class="hotel-select">
+                <option value="Hilton Maldives Resort">Hilton Maldives Resort</option>
+                <option value="Marriott Tokyo Downtown">Marriott Tokyo Downtown</option>
+                <option value="The Ritz Paris">The Ritz Paris</option>
+                <option value="Four Seasons Bali">Four Seasons Bali</option>
+            </select>
+
+            <div class="btn-grid">
+                <button class="btn-red" onclick="sendPost('/api/availability')">1. Check Availability</button>
+                <button class="btn-yellow" onclick="sendPost('/api/book')">2. Book a Room</button>
+                <button class="btn-blue" onclick="sendPost('/api/pricing')">3. Get Pricing</button>
+                <button class="btn-green" onclick="sendPost('/api/cancel')">4. Cancel Booking</button>
+                <button class="btn-orange" onclick="sendPost('/api/contact')">5. Contact Concierge</button>
+            </div>
+
+            <div id="response-box">Awaiting action...</div>
+        </div>
+    </div>
+
+    <!-- Swagger UI JS -->
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+    <script>
+        // Inline OpenAPI Spec for Swagger
+        const spec = {
+          "openapi": "3.0.0",
+          "info": {
+            "title": "Django Hotel Network API",
+            "version": "1.0.0",
+            "description": "Interactive documentation for the 5 APIs currently powering the right-side dashboard."
+          },
+          "paths": {
+            "/api/availability": { "post": { "summary": "Check Room Availability", "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "hotel": { "type": "string", "example": "Hilton Maldives Resort" } } } } } }, "responses": { "200": { "description": "Success" } } } },
+            "/api/book": { "post": { "summary": "Book a Room", "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "hotel": { "type": "string", "example": "Hilton Maldives Resort" } } } } } }, "responses": { "200": { "description": "Success" } } } },
+            "/api/pricing": { "post": { "summary": "Get Pricing", "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "hotel": { "type": "string", "example": "Hilton Maldives Resort" } } } } } }, "responses": { "200": { "description": "Success" } } } },
+            "/api/cancel": { "post": { "summary": "Cancel Booking", "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "hotel": { "type": "string", "example": "Hilton Maldives Resort" } } } } } }, "responses": { "200": { "description": "Success" } } } },
+            "/api/contact": { "post": { "summary": "Contact Concierge", "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "hotel": { "type": "string", "example": "Hilton Maldives Resort" } } } } } }, "responses": { "200": { "description": "Success" } } } }
+          }
+        };
+
+        // Initialize Swagger on the left panel
+        window.onload = () => {
+            window.ui = SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                docExpansion: 'list'
+            });
+        };
+
+        // Custom Dashboard Logic for the right panel
+        async function sendPost(endpoint) {
+            const hotel = document.getElementById('hotelDropdown').value;
+            const responseBox = document.getElementById('response-box');
+            responseBox.innerText = `Sending POST request to ${endpoint}...`;
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hotel: hotel })
+                });
+                const data = await response.json();
+                
+                if(data.status === "success") {
+                    responseBox.innerHTML = `<span style="color: #2ecc71;">✅ Success:</span> ${data.message}`;
+                } else {
+                    responseBox.innerHTML = `<span style="color: #e74c3c;">❌ Server Error:</span> ${data.message}`;
+                }
+            } catch (error) {
+                responseBox.innerHTML = `<span style="color: #e74c3c;">❌ Connection Error:</span> Failed to connect to Django API.`;
+            }
+        }
+    </script>
+</body>
+</html>
